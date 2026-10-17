@@ -88,7 +88,7 @@ arrow keys, and they mean the same thing on every screen:
 |---|---|---|
 | back (left) | ← | Go back one screen. Escape and Backspace also go back. |
 | home (center) | ↓ | Return to the home screen. |
-| menu (right) | → | Open the current screen's menu. Undecided; see [issue 0001](docs/issues/0001-menu-button.md). |
+| menu (right) | → | Open the current screen's menu. Undecided; see [#1](https://github.com/abbyfluoroethane/keel/issues/1). |
 
 Everything else is touch. Mouse drag is one-finger touch: drag lists to
 scroll, swipe pivots sideways, swipe the art on now playing to skip, drag

@@ -42,7 +42,7 @@ void keel_nav_home(void);
 
 /* What the menu button does on this screen. Without one it does nothing.
  * Cleared when the screen changes. What it should do is open: see
- * docs/issues/0001-menu-button.md. */
+ * https://github.com/abbyfluoroethane/keel/issues/1 */
 typedef void (*keel_menu_cb_t)(void * user);
 void keel_nav_set_menu(keel_menu_cb_t cb, void * user);
 
