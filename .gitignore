@@ -1,0 +1,9 @@
+build/
+build-*/
+.deps/
+# Cover art is copyrighted by its owners. Fetch it locally with
+# tools/fetch_demo_library.py covers
+assets/demo/covers/
+screenshots/
+screenshots-*/
+shots-*/
