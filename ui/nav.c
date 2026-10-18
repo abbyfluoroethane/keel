@@ -3,11 +3,16 @@
 #include <stdio.h>
 #include <time.h>
 
+#include "keel.h"
+#include "menu.h"
+#include "player.h"
 #include "screens.h"
 #include "theme.h"
 #include "widgets.h"
 
 #define MAX_DEPTH 16
+
+static void attach_group(lv_group_t * g);
 
 static const keel_screen_build_t home_build = keel_scr_home;
 
@@ -32,6 +37,9 @@ static lv_obj_t * status_bt;
 static lv_obj_t * status_clock;
 static lv_obj_t * status_battery;
 static uint32_t burn_step;
+
+static lv_timer_t * menu_hold;  /* running while the menu button is held */
+static bool menu_long_done;
 
 bool keel_reduced_motion(void) { return reduced; }
 int keel_nav_depth(void) { return depth; }
@@ -113,33 +121,76 @@ void keel_status_set_radios(int32_t wifi_bars, int32_t bluetooth)
 
 /* ---- Keys ------------------------------------------------------------- */
 
+/* Keys other than Vela's buttons: Up moves focus back; Tab, Shift+Tab and
+ * Enter are handled by LVGL's group itself. */
 static void key_cb(lv_event_t * e)
 {
     uint32_t key = lv_event_get_key(e);
-    /* Hardware buttons first: they mean the same thing everywhere. */
-    switch(key) {
-        case KEEL_KEY_BACK:
-        case LV_KEY_ESC:
-            keel_nav_back();
-            return;
-        case KEEL_KEY_HOME:
-            keel_nav_home();
-            return;
-        case KEEL_KEY_MENU:
-            if(menu_cb) menu_cb(menu_user);
-            return;
-        default:
-            break;
-    }
     if(key_hook && key_hook(key, key_hook_user)) return;
-    if(key == LV_KEY_UP) lv_group_focus_prev(group);
+    if(key == LV_KEY_UP) lv_group_focus_prev(lv_obj_get_group(lv_event_get_target_obj(e)));
 }
 
 void keel_nav_focusable(lv_obj_t * obj)
 {
-    lv_group_add_obj(group, obj);
+    lv_group_add_obj(lv_group_get_default(), obj);
     lv_obj_set_scroll_on_focus(obj, true);
     lv_obj_add_event_cb(obj, key_cb, LV_EVENT_KEY, NULL);
+}
+
+/* ---- Buttons ------------------------------------------------------------ */
+
+static void menu_hold_cb(lv_timer_t * t)
+{
+    menu_hold = NULL;
+    menu_long_done = true;
+    keel_menu_close();
+    keel_nav_now_playing();
+}
+
+void keel_button_event(keel_button_t button, bool pressed)
+{
+    switch(button) {
+        case KEEL_BUTTON_BACK:
+            if(!pressed) return;
+            if(keel_menu_is_open()) keel_menu_close();
+            else keel_nav_back();
+            return;
+        case KEEL_BUTTON_HOME:
+            if(!pressed) return;
+            keel_menu_close();
+            keel_nav_home();
+            return;
+        case KEEL_BUTTON_MENU:
+            /* Short or long is only known at release or after the hold time. */
+            if(pressed) {
+                menu_long_done = false;
+                if(menu_hold) lv_timer_delete(menu_hold);
+                menu_hold = lv_timer_create(menu_hold_cb, keel_motion.long_press, NULL);
+                lv_timer_set_repeat_count(menu_hold, 1);
+                lv_timer_set_auto_delete(menu_hold, true);
+                return;
+            }
+            if(menu_hold) {
+                lv_timer_delete(menu_hold);
+                menu_hold = NULL;
+            }
+            if(menu_long_done) return;
+            if(keel_menu_is_open()) keel_menu_close();
+            else if(menu_cb) menu_cb(menu_user);
+            return;
+    }
+}
+
+bool keel_nav_showing(keel_screen_build_t build, void * arg)
+{
+    return depth > 0 && stack[depth - 1].build == build && stack[depth - 1].arg == arg;
+}
+
+void keel_nav_now_playing(void)
+{
+    if(!keel_player_active()) return;
+    if(depth > 0 && stack[depth - 1].build == keel_scr_now_playing) return;
+    keel_nav_push(keel_scr_now_playing, NULL);
 }
 
 void keel_nav_set_menu(keel_menu_cb_t cb, void * user)
@@ -152,6 +203,11 @@ void keel_nav_set_key_hook(keel_key_hook_t hook, void * user)
 {
     key_hook = hook;
     key_hook_user = user;
+}
+
+void keel_nav_use_group(lv_group_t * g)
+{
+    attach_group(g ? g : group);
 }
 
 static void attach_group(lv_group_t * g)
@@ -207,6 +263,9 @@ static void show_top(void)
 {
     entry_t * en = &stack[depth - 1];
     lv_obj_t * old = lv_screen_active();
+
+    /* A menu belongs to the screen it opened on. */
+    keel_menu_close();
     lv_group_t * old_group = group;
 
     key_hook = NULL;

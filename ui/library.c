@@ -200,6 +200,10 @@ static int32_t jlen(const jnode_t * arr)
 /* ---- Library ---------------------------------------------------------- */
 
 static keel_library_t lib;
+static bool * track_liked;
+static bool * track_deleted;
+static bool * album_liked;
+static bool * album_deleted;
 static char * asset_root;
 static char ** cover_paths; /* album_count x 4, NULL when the file is missing */
 static const int32_t cover_sizes[4] = {480, 408, 198, 72};
@@ -310,6 +314,11 @@ bool keel_library_load(const char * asset_dir)
         }
     }
 
+    track_liked = calloc((size_t)lib.track_count, sizeof(bool));
+    track_deleted = calloc((size_t)lib.track_count, sizeof(bool));
+    album_liked = calloc((size_t)lib.album_count, sizeof(bool));
+    album_deleted = calloc((size_t)lib.album_count, sizeof(bool));
+
     lib.tracks_by_title = malloc(sizeof(int32_t) * (size_t)lib.track_count);
     for(i = 0; i < lib.track_count; i++) lib.tracks_by_title[i] = i;
     qsort(lib.tracks_by_title, (size_t)lib.track_count, sizeof(int32_t), cmp_title);
@@ -342,6 +351,84 @@ const char * keel_library_cover(int32_t album, int32_t size)
         if(cover_sizes[s] == size) return cover_paths[album * 4 + s];
     return NULL;
 }
+
+/* ---- Likes and deletes ------------------------------------------------ */
+
+static bool track_ok(int32_t t) { return t >= 0 && t < lib.track_count; }
+static bool album_ok(int32_t a) { return a >= 0 && a < lib.album_count; }
+
+bool keel_library_track_liked(int32_t t) { return track_ok(t) && track_liked[t]; }
+bool keel_library_album_liked(int32_t a) { return album_ok(a) && album_liked[a]; }
+bool keel_library_track_deleted(int32_t t) { return track_ok(t) && track_deleted[t]; }
+bool keel_library_album_deleted(int32_t a) { return album_ok(a) && album_deleted[a]; }
+
+void keel_library_set_track_liked(int32_t t, bool liked)
+{
+    if(track_ok(t)) track_liked[t] = liked;
+}
+
+void keel_library_set_album_liked(int32_t a, bool liked)
+{
+    if(album_ok(a)) album_liked[a] = liked;
+}
+
+void keel_library_delete_track(int32_t t)
+{
+    if(!track_ok(t)) return;
+    track_deleted[t] = true;
+    int32_t left;
+    keel_library_album_counts(lib.tracks[t].album, &left, NULL);
+    if(left == 0) album_deleted[lib.tracks[t].album] = true;
+}
+
+void keel_library_delete_album(int32_t a)
+{
+    if(!album_ok(a)) return;
+    album_deleted[a] = true;
+    for(int32_t i = 0; i < lib.albums[a].track_count; i++) track_deleted[lib.albums[a].first_track + i] = true;
+}
+
+void keel_library_album_counts(int32_t a, int32_t * tracks, int32_t * duration)
+{
+    int32_t n = 0, d = 0;
+    if(album_ok(a) && !album_deleted[a]) {
+        for(int32_t i = 0; i < lib.albums[a].track_count; i++) {
+            int32_t t = lib.albums[a].first_track + i;
+            if(track_deleted[t]) continue;
+            n++;
+            d += lib.tracks[t].duration;
+        }
+    }
+    if(tracks) *tracks = n;
+    if(duration) *duration = d;
+}
+
+void keel_library_artist_counts(int32_t artist, int32_t * albums, int32_t * tracks)
+{
+    int32_t na = 0, nt = 0;
+    for(int32_t a = 0; a < lib.album_count; a++) {
+        if(lib.albums[a].artist != artist || album_deleted[a]) continue;
+        int32_t n;
+        keel_library_album_counts(a, &n, NULL);
+        na++;
+        nt += n;
+    }
+    if(albums) *albums = na;
+    if(tracks) *tracks = nt;
+}
+
+int32_t keel_library_liked_tracks(int32_t * out, int32_t max)
+{
+    int32_t n = 0;
+    for(int32_t t = 0; t < lib.track_count; t++) {
+        if(!track_liked[t] || track_deleted[t]) continue;
+        if(out && n < max) out[n] = t;
+        n++;
+    }
+    return n;
+}
+
+/* ---- Cover prefetch --------------------------------------------------- */
 
 typedef struct {
     int32_t size;

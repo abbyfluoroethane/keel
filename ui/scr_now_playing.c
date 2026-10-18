@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "actions.h"
 #include "library.h"
 #include "nav.h"
 #include "player.h"
@@ -297,6 +298,18 @@ static void update_cb(lv_observer_t * obs, lv_subject_t * s)
     const keel_library_t * lib = keel_library();
     int32_t t = keel_player_track();
     if(t < 0) {
+        /* Stopped, e.g. the last playable track was deleted: clear what
+         * belonged to the old track. The controls already ignore input. */
+        if(np->art) lv_obj_delete(np->art);
+        np->art = NULL;
+        np->shown_album = np->shown_artist = np->shown_sec = -1;
+        np->overline_text[0] = '\0';
+        keel_text_set(np->overline, "");
+        lv_label_set_text(np->artist, "");
+        label_set(np->elapsed, "0:00");
+        label_set(np->total, "0:00");
+        label_set(np->play_label, "play");
+        keel_energy_bar_set(np->bar, 0);
         set_track(np, "nothing playing");
         return;
     }
@@ -315,7 +328,9 @@ static void update_cb(lv_observer_t * obs, lv_subject_t * s)
     }
     int32_t qpos = keel_player_queue_pos();
     char buf[64];
-    snprintf(buf, sizeof(buf), "Track %d of %d", (int)qpos + 1, (int)keel_player_queue_len());
+    /* Words as well as colour: liked is stated in the overline. */
+    snprintf(buf, sizeof(buf), "Track %d of %d%s", (int)qpos + 1, (int)keel_player_queue_len(),
+             keel_library_track_liked(t) ? " \xC2\xB7 Liked" : "");
     if(strcmp(buf, np->overline_text) != 0) {
         strcpy(np->overline_text, buf);
         keel_text_set(np->overline, buf);
@@ -344,6 +359,11 @@ static void delete_cb(lv_event_t * e)
     lv_anim_delete(&np->fade_tag, NULL);
     lv_timer_delete(np->idle_timer);
     free(np);
+}
+
+static void menu_cb(void * user)
+{
+    keel_menu_now_playing();
 }
 
 /* ---- Screen -------------------------------------------------------------- */
@@ -407,6 +427,7 @@ void keel_scr_now_playing(lv_obj_t * body, void * arg)
                              np->ctl[0],   np->ctl[1], np->ctl[2]};
     memcpy(np->targets, t, sizeof(t));
 
+    keel_nav_set_menu(menu_cb, NULL);
     np->idle_timer = lv_timer_create(idle_cb, 500, np);
     lv_group_focus_obj(np->ctl[1]);
 

@@ -6,7 +6,12 @@
 #include <SDL2/SDL.h>
 
 #include "keel.h"
+#include "library.h"
+#include "menu.h"
 #include "nav.h"
+#include "actions.h"
+#include "player.h"
+#include "screens.h"
 #include "platform.h"
 #include "theme.h"
 
@@ -45,50 +50,135 @@ static int find_demo(const char * name)
     return 0;
 }
 
-static uint32_t key_now;
-static bool key_down;
-
-static void bench_keys(lv_indev_t * indev, lv_indev_data_t * data)
+static bool pressed_for(keel_button_t b, uint32_t ms)
 {
-    data->key = key_now;
-    data->state = key_down ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
-}
-
-static void press(uint32_t key)
-{
-    key_now = key;
-    key_down = true;
-    platform_pump(60);
-    key_down = false;
+    keel_button_event(b, true);
+    platform_pump(ms);
+    keel_button_event(b, false);
     platform_pump(300);
+    return true;
 }
 
-/* Vela's buttons: back, home and menu from three screens deep. */
-static int check_buttons(lv_display_t * disp)
+/* Vela's buttons, from three screens deep: back, menu (short opens the
+ * screen's menu, back closes it, long opens now playing), home. */
+static int check_buttons(void)
 {
-    lv_indev_t * keys = lv_indev_create();
-    lv_indev_set_type(keys, LV_INDEV_TYPE_KEYPAD);
-    lv_indev_set_read_cb(keys, bench_keys);
-    lv_indev_set_display(keys, disp);
-
     keel_demo_show(find_demo("06-album")); /* home > music > album */
     platform_pump(400);
     int d0 = keel_nav_depth();
-    press(KEEL_KEY_BACK);
+    pressed_for(KEEL_BUTTON_BACK, 60);
     int d1 = keel_nav_depth();
-    press(KEEL_KEY_MENU);
-    int d2 = keel_nav_depth();
-    press(KEEL_KEY_HOME);
+    keel_nav_push(keel_scr_album, (void *)(intptr_t)3);
+    platform_pump(300);
+    pressed_for(KEEL_BUTTON_MENU, 60);
+    bool menu_short = keel_menu_is_open();
+    pressed_for(KEEL_BUTTON_BACK, 60);
+    bool menu_closed = !keel_menu_is_open() && keel_nav_depth() == d0;
+    pressed_for(KEEL_BUTTON_MENU, keel_motion.long_press + 150);
+    bool long_np = keel_nav_showing(keel_scr_now_playing, NULL) && !keel_menu_is_open();
+    pressed_for(KEEL_BUTTON_HOME, 60);
     int d3 = keel_nav_depth();
-    lv_indev_delete(keys);
-    bool ok = d0 == 3 && d1 == 2 && d2 == 2 && d3 == 1;
-    printf("%-26s depth %d, back %d, menu %d, home %d  %s\n", "buttons", d0, d1, d2, d3, ok ? "ok" : "FAIL");
+    bool ok = d0 == 3 && d1 == 2 && menu_short && menu_closed && long_np && d3 == 1;
+    printf("%-24s depth %d, back %d | menu %s, back %s | long menu %s | home %d  %s\n", "buttons", d0, d1,
+           menu_short ? "opens" : "NO", menu_closed ? "closes" : "NO", long_np ? "now playing" : "NO", d3,
+           ok ? "ok" : "FAIL");
     return ok ? 0 : 1;
 }
 
-/* Pass: 99% of frames inside one 60 Hz period and under 1% over it. A
- * laptop at a balanced power profile throws the odd long frame for reasons
- * outside Keel (the max column shows it); a stall Keel causes repeats. */
+/* A long press on a song row opens its menu; "like" there likes it. */
+static int check_item_menu(void)
+{
+    keel_demo_show(find_demo("06-album"));
+    platform_pump(600);
+    const keel_library_t * lib = keel_library();
+    int32_t t = lib->albums[3].first_track;
+    bool before = keel_library_track_liked(t);
+    /* First track row: the album page puts it below the art and header. */
+    lv_obj_t * row = NULL;
+    lv_obj_t * col = lv_obj_get_child(lv_obj_get_child(lv_screen_active(), 0), 0);
+    for(uint32_t i = 0; col && i < lv_obj_get_child_count(col) && !row; i++) {
+        lv_obj_t * c = lv_obj_get_child(col, (int32_t)i);
+        if(lv_obj_get_group(c)) row = c;
+    }
+    if(!row) {
+        printf("%-24s no row found  FAIL\n", "item menu");
+        return 1;
+    }
+    lv_obj_scroll_to_view(row, LV_ANIM_OFF);
+    platform_pump(100);
+    lv_area_t a;
+    lv_obj_get_coords(row, &a);
+    finger = (lv_point_t){(a.x1 + a.x2) / 2, (a.y1 + a.y2) / 2};
+    finger_down = true;
+    platform_pump(keel_motion.long_press + 200);
+    finger_down = false;
+    platform_pump(400);
+    bool opened = keel_menu_is_open();
+    bool tapped_through = keel_nav_showing(keel_scr_now_playing, NULL);
+    /* Tap the sheet's third row: like (or unlike). */
+    lv_obj_t * sheet = lv_obj_get_child(lv_layer_top(), -1);
+    int32_t seen = 0;
+    for(uint32_t i = 0; opened && i < lv_obj_get_child_count(sheet); i++) {
+        lv_obj_t * c = lv_obj_get_child(sheet, (int32_t)i);
+        if(lv_obj_get_group(c) && ++seen == 3) {
+            lv_obj_send_event(c, LV_EVENT_SHORT_CLICKED, NULL);
+            break;
+        }
+    }
+    platform_pump(300);
+    bool liked = keel_library_track_liked(t) != before && !keel_menu_is_open();
+    keel_library_set_track_liked(t, before);
+    bool ok = opened && !tapped_through && liked;
+    printf("%-24s long press %s, tap %s, like %s  %s\n", "item menu", opened ? "opens menu" : "NO MENU",
+           tapped_through ? "ALSO FIRED" : "not fired", liked ? "toggles" : "NO", ok ? "ok" : "FAIL");
+    return ok ? 0 : 1;
+}
+
+/* Tap the n-th (1-based) row of the open menu sheet. */
+static bool tap_menu_row(int32_t n)
+{
+    if(!keel_menu_is_open()) return false;
+    lv_obj_t * sheet = lv_obj_get_child(lv_layer_top(), -1);
+    int32_t seen = 0;
+    for(uint32_t i = 0; i < lv_obj_get_child_count(sheet); i++) {
+        lv_obj_t * c = lv_obj_get_child(sheet, (int32_t)i);
+        if(lv_obj_get_group(c) && ++seen == n) {
+            lv_obj_send_event(c, LV_EVENT_SHORT_CLICKED, NULL);
+            platform_pump(300);
+            return true;
+        }
+    }
+    return false;
+}
+
+/* Delete through the real confirmation: a song that isn't playing (stay
+ * put), then the one that is (the player moves on). Runs last: deletes
+ * last for the session. */
+static int check_delete(void)
+{
+    keel_demo_show(find_demo("04-music-songs"));
+    platform_pump(600);
+    int depth = keel_nav_depth();
+    int32_t playing = keel_player_track();
+    int32_t other = keel_library()->albums[5].first_track;
+    keel_action_ask_delete_song(other);
+    platform_pump(300);
+    bool asked = keel_menu_is_open();
+    tap_menu_row(1); /* "delete" */
+    bool gone = keel_library_track_deleted(other) && !keel_menu_is_open() && keel_nav_depth() == depth;
+
+    keel_action_ask_delete_song(playing);
+    platform_pump(300);
+    tap_menu_row(1);
+    int32_t now = keel_player_track();
+    bool moved = keel_library_track_deleted(playing) && now >= 0 && now != playing && !keel_library_track_deleted(now);
+
+    bool ok = asked && gone && moved;
+    printf("%-24s confirm %s, delete %s, playing one %s  %s\n", "delete", asked ? "asks" : "NO", gone ? "stays put" : "FAIL",
+           moved ? "skips on" : "FAIL", ok ? "ok" : "FAIL");
+    return ok ? 0 : 1;
+}
+
 static int report(const char * name)
 {
     keel_frame_stats_t s;
@@ -191,7 +281,9 @@ int platform_bench(lv_display_t * disp)
     }
     slow |= report("screen open (stagger)");
 
-    slow |= check_buttons(disp);
+    slow |= check_buttons();
+    slow |= check_item_menu();
+    slow |= check_delete();
 
     printf(slow ? "bench: FAIL\n" : "bench: all scenarios hold 60 fps\n");
     return slow;

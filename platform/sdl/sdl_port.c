@@ -12,6 +12,7 @@
 
 #include <SDL2/SDL.h>
 
+#include "keel.h"
 #include "platform.h"
 #include "theme.h"
 
@@ -53,18 +54,27 @@ static void key_push(uint32_t key, lv_indev_state_t state)
     key_head = next;
 }
 
+/* Laptop stand-ins for Vela's buttons: left back, down home, right menu.
+ * Escape and Backspace are back too. */
+static int map_button(SDL_Keycode k)
+{
+    switch(k) {
+        case SDLK_LEFT:
+        case SDLK_ESCAPE:
+        case SDLK_BACKSPACE: return KEEL_BUTTON_BACK;
+        case SDLK_DOWN: return KEEL_BUTTON_HOME;
+        case SDLK_RIGHT: return KEEL_BUTTON_MENU;
+        default: return -1;
+    }
+}
+
 static uint32_t map_key(SDL_Keycode k, Uint16 mod)
 {
     switch(k) {
         case SDLK_UP: return LV_KEY_UP;
-        case SDLK_DOWN: return LV_KEY_DOWN;
-        case SDLK_LEFT: return LV_KEY_LEFT;
-        case SDLK_RIGHT: return LV_KEY_RIGHT;
         case SDLK_RETURN:
         case SDLK_KP_ENTER:
         case SDLK_SPACE: return LV_KEY_ENTER;
-        case SDLK_ESCAPE:
-        case SDLK_BACKSPACE: return LV_KEY_ESC;
         case SDLK_TAB: return (mod & KMOD_SHIFT) ? LV_KEY_PREV : LV_KEY_NEXT;
         case SDLK_HOME: return LV_KEY_HOME;
         case SDLK_END: return LV_KEY_END;
@@ -91,6 +101,13 @@ static void events_cb(lv_timer_t * t)
                 break;
             case SDL_KEYDOWN:
             case SDL_KEYUP: {
+                /* Vela's three buttons are buttons, not keys: Keel sees each
+                 * press and release and decides short or long itself. */
+                int b = map_button(e.key.keysym.sym);
+                if(b >= 0) {
+                    if(!e.key.repeat) keel_button_event((keel_button_t)b, e.type == SDL_KEYDOWN);
+                    break;
+                }
                 uint32_t k = map_key(e.key.keysym.sym, e.key.keysym.mod);
                 if(k) key_push(k, e.type == SDL_KEYDOWN ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED);
                 break;

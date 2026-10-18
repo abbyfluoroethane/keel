@@ -26,7 +26,8 @@ lv_obj_t * keel_header(lv_obj_t * parent, const char * overline, const char * ti
  *   secondary  small, muted, below primary (NULL for none)
  *   data       data style, muted, right-aligned (NULL for none), e.g. "3:41"
  * At least the minimum touch target tall. Text starts at the page margin.
- * `cb` gets LV_EVENT_CLICKED with `user` as user data. Keyboard-focusable. */
+ * `cb` gets LV_EVENT_SHORT_CLICKED (a tap, not a long press) with `user`
+ * as user data. Keyboard-focusable. */
 lv_obj_t * keel_row(lv_obj_t * parent, const char * primary, const char * secondary, const char * data,
                     lv_event_cb_t cb, void * user);
 

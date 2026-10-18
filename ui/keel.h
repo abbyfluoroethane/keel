@@ -18,6 +18,22 @@ typedef struct {
 
 bool keel_ui_init(const keel_options_t * opts);
 
+/* ---- Vela's hardware buttons --------------------------------------------
+ * Three buttons below the screen. A backend reports every press and release
+ * (no auto-repeat); Keel decides what a short or long press means:
+ *   back  press: close an open menu, else go back one screen
+ *   home  press: close any menu and go to the home screen
+ *   menu  short: open (or close) this screen's menu
+ *         long:  open now playing
+ */
+typedef enum {
+    KEEL_BUTTON_BACK,
+    KEEL_BUTTON_HOME,
+    KEEL_BUTTON_MENU,
+} keel_button_t;
+
+void keel_button_event(keel_button_t button, bool pressed);
+
 /* ---- Demo screens, for --screenshot and --bench ---------------------- */
 int keel_demo_count(void);
 const char * keel_demo_name(int index);

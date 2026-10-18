@@ -26,25 +26,32 @@ int keel_nav_depth(void);
  * Valid during and after the builder of the current entry. */
 int32_t * keel_nav_state(void);
 
-/* Vela's three hardware buttons, below the screen. A backend reports a
- * press as this LVGL key; on the laptop they are the arrow keys. They work
- * on every screen and no screen can take them over. */
-#define KEEL_KEY_BACK LV_KEY_LEFT
-#define KEEL_KEY_HOME LV_KEY_DOWN
-#define KEEL_KEY_MENU LV_KEY_RIGHT
-
 /* Make `obj` reachable by keyboard: Up and Shift+Tab move focus back, Tab
- * moves it forward, Enter clicks. Also scrolls it into view when focused. */
+ * moves it forward, Enter clicks, a long Enter is a long press. Also
+ * scrolls it into view when focused. It joins the current focus group:
+ * the screen's, or an open menu's. (Vela's hardware buttons are not keys;
+ * see keel_button_event in keel.h.) */
 void keel_nav_focusable(lv_obj_t * obj);
 
 /* The home button: back to the home screen from anywhere. */
 void keel_nav_home(void);
 
-/* What the menu button does on this screen. Without one it does nothing.
- * Cleared when the screen changes. What it should do is open: see
- * https://github.com/abbyfluoroethane/keel/issues/1 */
+/* A long press of the menu button: open now playing, unless it is already
+ * showing or nothing is loaded. */
+void keel_nav_now_playing(void);
+
+/* True when the top screen is `build` opened with `arg`. */
+bool keel_nav_showing(keel_screen_build_t build, void * arg);
+
+/* What a short press of the menu button does on this screen: usually opens
+ * a context menu (keel_menu_open). Without one the press does nothing.
+ * Cleared when the screen changes. */
 typedef void (*keel_menu_cb_t)(void * user);
 void keel_nav_set_menu(keel_menu_cb_t cb, void * user);
+
+/* Send keyboard focus to `g` (a menu's group), or back to the screen's
+ * group with NULL. */
+void keel_nav_use_group(lv_group_t * g);
 
 /* A screen can see the other keys first. Return true to consume the key.
  * Cleared when the screen changes. */

@@ -70,6 +70,63 @@ void keel_player_play_album(int32_t album, int32_t index)
     free(t);
 }
 
+void keel_player_play_shuffled(const int32_t * tracks, int32_t count)
+{
+    if(count <= 0) return;
+    int32_t * t = malloc(sizeof(int32_t) * (size_t)count);
+    memcpy(t, tracks, sizeof(int32_t) * (size_t)count);
+    for(int32_t i = count - 1; i > 0; i--) {
+        int32_t j = rand() % (i + 1);
+        int32_t x = t[i];
+        t[i] = t[j];
+        t[j] = x;
+    }
+    keel_player_play(t, count, 0);
+    free(t);
+}
+
+void keel_player_play_next(int32_t track)
+{
+    if(queue_pos < 0) {
+        keel_player_play(&track, 1, 0);
+        return;
+    }
+    queue = realloc(queue, sizeof(int32_t) * (size_t)(queue_len + 1));
+    memmove(&queue[queue_pos + 2], &queue[queue_pos + 1], sizeof(int32_t) * (size_t)(queue_len - queue_pos - 1));
+    queue[queue_pos + 1] = track;
+    queue_len++;
+    changed();  /* "track 3 of n" changes */
+}
+
+static void stop(void)
+{
+    queue_pos = -1;
+    playing = false;
+    position_ms = 0;
+    changed();
+}
+
+/* Move queue_pos by `dir` until a track that still exists; false if none. */
+static bool step(int dir)
+{
+    for(int32_t i = 0; i < queue_len; i++) {
+        queue_pos = (queue_pos + queue_len + dir) % queue_len;
+        if(!keel_library_track_deleted(queue[queue_pos])) return true;
+    }
+    return false;
+}
+
+void keel_player_library_changed(void)
+{
+    if(queue_pos < 0 || !keel_library_track_deleted(queue[queue_pos])) {
+        changed();
+        return;
+    }
+    position_ms = 0;
+    if(step(1)) changed();
+    else stop();
+}
+
 void keel_player_toggle(void)
 {
     if(queue_pos < 0) return;
@@ -81,17 +138,21 @@ void keel_player_toggle(void)
 void keel_player_next(void)
 {
     if(queue_pos < 0) return;
-    queue_pos = (queue_pos + 1) % queue_len;
     position_ms = 0;
-    changed();
+    if(step(1)) changed();
+    else stop();
 }
 
 void keel_player_prev(void)
 {
     if(queue_pos < 0) return;
     /* Like most players: restart the track unless it just began. */
-    if(position_ms < 3000) queue_pos = (queue_pos + queue_len - 1) % queue_len;
+    bool back = position_ms < 3000;
     position_ms = 0;
+    if(back && !step(-1)) {
+        stop();
+        return;
+    }
     changed();
 }
 

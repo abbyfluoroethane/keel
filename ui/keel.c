@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 
+#include "actions.h"
 #include "library.h"
 #include "nav.h"
 #include "player.h"
@@ -77,6 +78,25 @@ static void show_about(void)
     keel_nav_push(keel_scr_settings_page, (void *)(intptr_t)3);
 }
 
+/* Menus over the album page: the menu button's, a long-pressed song's, and
+ * the delete confirmation. */
+static int32_t demo_track(void) { return keel_library()->albums[3].first_track + 1; }
+static void show_menu_album(void)
+{
+    show_album();
+    keel_menu_album_page(3);
+}
+static void show_menu_song(void)
+{
+    show_album();
+    keel_menu_song(demo_track(), NULL);
+}
+static void show_menu_delete(void)
+{
+    show_album();
+    keel_action_ask_delete_song(demo_track());
+}
+
 static const demo_t demos[] = {
     {"01-home", show_home},
     {"02-music-artists", show_artists},
@@ -88,6 +108,9 @@ static const demo_t demos[] = {
     {"08-radio", show_radio},
     {"09-settings", show_settings},
     {"10-settings-about", show_about},
+    {"11-menu-album", show_menu_album},
+    {"12-menu-song", show_menu_song},
+    {"13-menu-delete", show_menu_delete},
 };
 
 int keel_demo_count(void) { return (int)(sizeof(demos) / sizeof(demos[0])); }

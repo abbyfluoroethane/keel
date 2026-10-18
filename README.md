@@ -86,9 +86,19 @@ arrow keys, and they mean the same thing on every screen:
 
 | Button | Laptop key | Action |
 |---|---|---|
-| back (left) | ← | Go back one screen. Escape and Backspace also go back. |
-| home (center) | ↓ | Return to the home screen. |
-| menu (right) | → | Open the current screen's menu. Undecided; see [#1](https://github.com/abbyfluoroethane/keel/issues/1). |
+| back (left) | ← | Close an open menu, otherwise go back one screen. Escape and Backspace also go back. |
+| home (center) | ↓ | Close any menu and return to the home screen. |
+| menu (right) | → | Short press: open (or close) this screen's menu. Long press: open now playing. |
+
+Menus are black sheets of word rows, like every other screen ([#1](https://github.com/abbyfluoroethane/keel/issues/1)):
+
+- The menu button opens the current screen's menu: home and music offer now playing, shuffle all
+  and liked songs; an album page offers play, shuffle, like, go to artist and delete; now playing
+  offers like, go to album or artist, and delete; the radio scans between presets.
+- A long press on a song opens its menu: play, play next, like, go to album, go to artist, delete.
+  On an album: play, shuffle, like, go to artist, delete. On an artist: play all, shuffle.
+- Delete asks first. Likes and deletes live in memory for now (there is no media database yet),
+  so they reset when Keel restarts. Liked songs appear as a playlist.
 
 Everything else is touch. Mouse drag is one-finger touch: drag lists to
 scroll, swipe pivots sideways, swipe the art on now playing to skip, drag
@@ -98,7 +108,8 @@ the back button's job. The status bar shows Wi-Fi and Bluetooth on the left
 the right.
 
 Keyboard focus, for testing without a mouse: ↑ and Shift+Tab move focus
-back, Tab moves it forward, Enter or Space activates.
+back, Tab moves it forward, Enter or Space activates, and holding Enter is a
+long press.
 
 ## Performance
 

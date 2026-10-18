@@ -14,6 +14,14 @@ void keel_player_play(const int32_t * tracks, int32_t count, int32_t index);
 /* Play an album from track `index` (0-based on the album). */
 void keel_player_play_album(int32_t album, int32_t index);
 
+/* Play `tracks` in a random order. */
+void keel_player_play_shuffled(const int32_t * tracks, int32_t count);
+/* Queue `track` right after the current one (or play it if nothing plays). */
+void keel_player_play_next(int32_t track);
+/* Call after deleting from the library: skips a deleted current track and
+ * stops when nothing playable is left. */
+void keel_player_library_changed(void);
+
 void keel_player_toggle(void);
 void keel_player_next(void);
 void keel_player_prev(void);

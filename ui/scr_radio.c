@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "menu.h"
 #include "nav.h"
 #include "screens.h"
 #include "widgets.h"
@@ -90,6 +91,41 @@ static void tune_to(radio_t * r, int32_t freq, bool anim)
     lv_anim_set_duration(&a, keel_motion.duration);
     lv_anim_set_path_cb(&a, lv_anim_path_ease_out);
     lv_anim_start(&a);
+}
+
+/* Next preset above (dir +1) or below (-1) where the tuner is heading,
+ * wrapping around the band. Presets are in ascending order. */
+static void scan(radio_t * r, int dir)
+{
+    int32_t pick = preset_defs[dir > 0 ? 0 : 3].freq;
+    for(int32_t i = 0; i < 4; i++) {
+        int32_t f = preset_defs[i].freq;
+        if(dir > 0 && f > r->goal) {
+            pick = f;
+            break;
+        }
+        if(dir < 0 && f < r->goal) pick = f;
+    }
+    tune_to(r, pick, true);
+}
+
+static void scan_up_cb(void * user)
+{
+    scan(user, 1);
+}
+
+static void scan_down_cb(void * user)
+{
+    scan(user, -1);
+}
+
+static void menu_cb(void * user)
+{
+    keel_menu_item_t items[] = {
+        {"scan up", scan_up_cb, user},
+        {"scan down", scan_down_cb, user},
+    };
+    keel_menu_open("Menu", "radio", items, 2);
 }
 
 /* ---- Strip ------------------------------------------------------------ */
@@ -249,4 +285,5 @@ void keel_scr_radio(lv_obj_t * body, void * arg)
     }
 
     tune_to(r, F_START, false);
+    keel_nav_set_menu(menu_cb, r);
 }

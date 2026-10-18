@@ -1,5 +1,6 @@
 #include <stdint.h>
 
+#include "actions.h"
 #include "nav.h"
 #include "screens.h"
 #include "widgets.h"
@@ -13,6 +14,11 @@ static void go_cb(lv_event_t * e)
 static void go_music_cb(lv_event_t * e)
 {
     keel_nav_push(keel_scr_music, (void *)(intptr_t)0);
+}
+
+static void menu_cb(void * user)
+{
+    keel_menu_library("home");
 }
 
 static void back_cb(lv_event_t * e)
@@ -37,6 +43,7 @@ void keel_scr_home(lv_obj_t * body, void * arg)
     for(int32_t i = 0; i < 4; i++) keel_nav_stagger(rows[i], i);
 
     keel_mini_player(body);
+    keel_nav_set_menu(menu_cb, NULL);
 }
 
 void keel_scr_podcasts(lv_obj_t * body, void * arg)

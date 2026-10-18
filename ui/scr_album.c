@@ -2,16 +2,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "actions.h"
 #include "library.h"
+#include "menu.h"
 #include "nav.h"
 #include "player.h"
 #include "screens.h"
 #include "widgets.h"
 
 typedef struct {
-    int32_t first_track;
     int32_t count;
-    lv_obj_t * markers[];  /* one per row, shown on the playing track */
+    /* One per row. Deleted tracks have no row, so each marker remembers its
+     * own track; a row hidden by a later delete just never matches. */
+    struct {
+        int32_t track;
+        lv_obj_t * marker;
+    } rows[];
 } album_t;
 
 static void markers_update(lv_observer_t * obs, lv_subject_t * s)
@@ -19,15 +25,31 @@ static void markers_update(lv_observer_t * obs, lv_subject_t * s)
     album_t * a = lv_observer_get_user_data(obs);
     int32_t playing = keel_player_track();
     for(int32_t i = 0; i < a->count; i++)
-        lv_obj_set_hidden(a->markers[i], a->first_track + i != playing);
+        lv_obj_set_hidden(a->rows[i].marker, a->rows[i].track != playing);
 }
 
 static void track_cb(lv_event_t * e)
 {
     const keel_library_t * lib = keel_library();
-    const keel_track_t * t = &lib->tracks[(intptr_t)lv_event_get_user_data(e)];
-    keel_player_play_album(t->album, t->number - 1);
-    keel_nav_push(keel_scr_now_playing, NULL);
+    int32_t ti = (int32_t)(intptr_t)lv_event_get_user_data(e);
+    const keel_album_t * al = &lib->albums[lib->tracks[ti].album];
+
+    /* Built now, not when the page opened, so later deletes are skipped. */
+    int32_t * list = malloc(sizeof(int32_t) * (size_t)al->track_count);
+    int32_t n = 0, from = 0;
+    for(int32_t i = 0; i < al->track_count; i++) {
+        int32_t t = al->first_track + i;
+        if(keel_library_track_deleted(t)) continue;
+        if(t == ti) from = n;
+        list[n++] = t;
+    }
+    keel_action_play_tracks(list, n, from);
+    free(list);
+}
+
+static void menu_cb(void * user)
+{
+    keel_menu_album_page((int32_t)(intptr_t)user);
 }
 
 static void free_cb(lv_event_t * e)
@@ -50,10 +72,9 @@ void keel_scr_album(lv_obj_t * body, void * arg)
     /* Room for the last track to scroll clear of the screen edge. */
     lv_obj_set_style_pad_bottom(col, keel_space.space_8, 0);
 
-    album_t * a = calloc(1, sizeof(*a) + (size_t)al->track_count * sizeof(lv_obj_t *));
-    a->first_track = al->first_track;
-    a->count = al->track_count;
+    album_t * a = calloc(1, sizeof(*a) + (size_t)al->track_count * sizeof(a->rows[0]));
     lv_obj_add_event_cb(col, free_cb, LV_EVENT_DELETE, a);
+    keel_nav_set_menu(menu_cb, (void *)(intptr_t)ai);
 
     /* The art is the one thing that is not text, so it gets air above. */
     lv_obj_t * art = keel_cover(col, ai, KEEL_ART_LARGE);
@@ -73,9 +94,11 @@ void keel_scr_album(lv_obj_t * body, void * arg)
     /* Count and length ride inline: a data line under small would stack two
      * 21px styles (rule 5). */
     char tm[16], meta[160];
-    keel_format_time(tm, sizeof(tm), al->duration);
-    snprintf(meta, sizeof(meta), "%s · %d %s · %s", lib->artists[al->artist].name, (int)al->track_count,
-             al->track_count == 1 ? "song" : "songs", tm);
+    int32_t songs, length;
+    keel_library_album_counts(ai, &songs, &length);
+    keel_format_time(tm, sizeof(tm), length);
+    snprintf(meta, sizeof(meta), "%s · %d %s · %s", lib->artists[al->artist].name, (int)songs,
+             songs == 1 ? "song" : "songs", tm);
     lv_obj_t * artist = keel_text(col, KEEL_TYPE_SMALL, meta);
     lv_obj_set_width(artist, LV_PCT(100));
     lv_obj_set_style_pad_hor(artist, keel_space.margin, 0);
@@ -83,8 +106,10 @@ void keel_scr_album(lv_obj_t * body, void * arg)
     lv_obj_set_style_margin_bottom(artist, keel_space.space_4, 0);
     keel_nav_stagger(artist, 0);
 
+    int32_t shown = 0;
     for(int32_t i = 0; i < al->track_count; i++) {
         int32_t ti = al->first_track + i;
+        if(keel_library_track_deleted(ti)) continue;
         char dur[16];
         keel_format_time(dur, sizeof(dur), lib->tracks[ti].duration);
         lv_obj_t * row = keel_row(col, lib->tracks[ti].title, NULL, dur, track_cb, (void *)(intptr_t)ti);
@@ -98,10 +123,14 @@ void keel_scr_album(lv_obj_t * body, void * arg)
         lv_obj_set_floating(m, true);
         lv_obj_align(m, LV_ALIGN_LEFT_MID, keel_space.space_2, 0);
         lv_obj_set_style_translate_x(m, -keel_space.margin, 0);
-        a->markers[i] = m;
+        a->rows[shown].track = ti;
+        a->rows[shown].marker = m;
 
-        keel_nav_stagger(row, i + 1);
+        keel_menu_on_long_press(row, keel_long_press_song, (void *)(intptr_t)ti);
+        keel_nav_stagger(row, shown + 1);
+        shown++;
     }
+    a->count = shown;
 
     lv_subject_add_observer_obj(keel_player_subject(), markers_update, col, a);
 }

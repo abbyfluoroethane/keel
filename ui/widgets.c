@@ -59,7 +59,9 @@ static lv_obj_t * row_base(lv_obj_t * parent, lv_event_cb_t cb, void * user)
     lv_obj_set_height(row, LV_SIZE_CONTENT);
     lv_obj_set_style_min_height(row, keel_space.touch_min, 0);
     lv_obj_set_style_pad_hor(row, keel_space.margin, 0);
-    if(cb) lv_obj_add_event_cb(row, cb, LV_EVENT_CLICKED, user);
+    /* SHORT_CLICKED: LVGL still sends CLICKED after a long press, which
+     * opens the item's menu instead. */
+    if(cb) lv_obj_add_event_cb(row, cb, LV_EVENT_SHORT_CLICKED, user);
     keel_nav_focusable(row);
     return row;
 }

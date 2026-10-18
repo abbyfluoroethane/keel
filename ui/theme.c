@@ -62,6 +62,9 @@ const keel_motion_t keel_motion = {
     .stagger_dist = KS(32),
     /* Tap feedback: the hover fill fades out over this after release. */
     .tap_flash = 150,
+    /* Long press, for the menu button and for item menus. LVGL's touch
+     * default, so a held button and a held row feel the same. */
+    .long_press = 400,
     /* Burn-in rules from the design system: 30 s idle, "every few minutes". */
     .idle_hide = 30000,
     .burn_shift = 180000,

@@ -76,6 +76,7 @@ typedef struct {
     uint32_t stagger_max;   /* rows after this many enter together */
     int32_t stagger_dist;   /* rows enter from this far to the right */
     uint32_t tap_flash;     /* how long the hover fill stays after a tap */
+    uint32_t long_press;    /* hold this long for a long press */
     uint32_t idle_hide;     /* now playing hides large static text */
     uint32_t burn_shift;    /* status bar moves 1px this often */
     float parallax;         /* header travel / content travel */
