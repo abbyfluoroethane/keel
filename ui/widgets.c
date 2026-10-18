@@ -171,6 +171,7 @@ lv_obj_t * keel_status(lv_obj_t * parent, bool ok, const char * text)
 
 typedef struct {
     lv_obj_t * bar;
+    lv_obj_t * progress;
     lv_obj_t * art_holder;
     lv_obj_t * title;
     lv_obj_t * artist;
@@ -199,6 +200,16 @@ static void mini_update(lv_observer_t * obs, lv_subject_t * s)
     lv_label_set_text(m->toggle, keel_player_playing() ? "pause" : "play");
 }
 
+static void mini_progress(lv_observer_t * obs, lv_subject_t * s)
+{
+    mini_t * m = lv_observer_get_user_data(obs);
+    int32_t t = keel_player_track();
+    if(t < 0) return;
+    int32_t dur = keel_library()->tracks[t].duration;
+    /* permille = pos_ms * 1000 / (duration_s * 1000) */
+    keel_energy_bar_set(m->progress, dur > 0 ? (int32_t)keel_player_position_ms() / dur : 0);
+}
+
 static void mini_open_cb(lv_event_t * e)
 {
     keel_nav_push(keel_scr_now_playing, NULL);
@@ -214,11 +225,18 @@ static void mini_delete_cb(lv_event_t * e)
     free(lv_event_get_user_data(e));
 }
 
+int32_t keel_mini_player_height(void)
+{
+    return keel_space.divider + keel_space.touch_min + keel_space.bar_edge;
+}
+
 lv_obj_t * keel_mini_player(lv_obj_t * parent)
 {
     mini_t * m = calloc(1, sizeof(*m));
     m->shown_track = -1;
 
+    /* The whole bar is one target. A `line` divider on top gives it a
+     * defined edge against the black screen above. */
     lv_obj_t * bar = lv_obj_create(parent);
     m->bar = bar;
     lv_obj_add_style(bar, keel_style_plain(), 0);
@@ -226,23 +244,30 @@ lv_obj_t * keel_mini_player(lv_obj_t * parent)
     lv_obj_set_style_bg_color(bar, keel_color.raised, 0);
     lv_obj_set_style_bg_opa(bar, LV_OPA_COVER, 0);
     lv_obj_set_style_bg_color(bar, keel_color.hover, LV_STATE_PRESSED);
+    lv_obj_set_style_border_side(bar, LV_BORDER_SIDE_TOP, 0);
+    lv_obj_set_style_border_width(bar, keel_space.divider, 0);
+    lv_obj_set_style_border_color(bar, keel_color.line, 0);
+    lv_obj_set_style_border_opa(bar, LV_OPA_COVER, 0);
     lv_obj_set_scrollable(bar, false);
-    lv_obj_set_size(bar, LV_PCT(100), keel_space.touch_min);
+    lv_obj_set_size(bar, LV_PCT(100), keel_mini_player_height());
     lv_obj_align(bar, LV_ALIGN_BOTTOM_LEFT, 0, 0);
-    lv_obj_set_flex_flow(bar, LV_FLEX_FLOW_ROW);
-    lv_obj_set_flex_align(bar, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-    lv_obj_set_style_pad_column(bar, keel_space.space_3, 0);
+    lv_obj_set_flex_flow(bar, LV_FLEX_FLOW_COLUMN);
     lv_obj_add_event_cb(bar, mini_open_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(bar, mini_delete_cb, LV_EVENT_DELETE, m);
     keel_nav_focusable(bar);
 
-    m->art_holder = keel_box(bar);
+    lv_obj_t * row = keel_box(bar);
+    lv_obj_set_size(row, LV_PCT(100), keel_space.touch_min);
+    lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(row, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_column(row, keel_space.space_3, 0);
+
+    m->art_holder = keel_box(row);
     lv_obj_set_size(m->art_holder, KEEL_ART_THUMB, KEEL_ART_THUMB);
 
-    lv_obj_t * col = keel_box(bar);
+    lv_obj_t * col = keel_box(row);
     lv_obj_set_flex_flow(col, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_grow(col, 1);
-    lv_obj_set_event_bubble(col, true);
     m->title = keel_text(col, KEEL_TYPE_SUBHEADING, "");
     lv_obj_set_size(m->title, LV_PCT(100), keel_type_line_height(KEEL_TYPE_SUBHEADING));
     lv_label_set_long_mode(m->title, LV_LABEL_LONG_MODE_DOTS);
@@ -251,13 +276,17 @@ lv_obj_t * keel_mini_player(lv_obj_t * parent)
     lv_label_set_long_mode(m->artist, LV_LABEL_LONG_MODE_DOTS);
     /* `muted` is for text on base only, so the artist on raised uses text. */
 
-    m->toggle = keel_text(bar, KEEL_TYPE_LABEL, "pause");
+    m->toggle = keel_text(row, KEEL_TYPE_LABEL, "pause");
     lv_obj_set_clickable(m->toggle, true);
     lv_obj_set_style_pad_hor(m->toggle, keel_space.margin, 0);
     lv_obj_set_ext_click_area(m->toggle, keel_space.touch_min / 2);
     lv_obj_add_event_cb(m->toggle, mini_toggle_cb, LV_EVENT_CLICKED, NULL);
 
+    /* Playback progress: the energy bar, full width, nothing on it. */
+    m->progress = keel_energy_bar(bar, KEEL_HOR_RES);
+
     lv_subject_add_observer_obj(keel_player_subject(), mini_update, bar, m);
+    lv_subject_add_observer_obj(keel_player_pos_subject(), mini_progress, bar, m);
     return bar;
 }
 

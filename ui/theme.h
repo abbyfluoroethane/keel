@@ -58,6 +58,7 @@ typedef struct {
     int32_t radius;
     int32_t status_bar_h; /* Keel addition, see theme.c */
     int32_t control_edge; /* 1px edge of sliders and toggles */
+    int32_t divider;      /* a `line` divider's thickness */
 } keel_space_t;
 
 extern const keel_space_t keel_space;

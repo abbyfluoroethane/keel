@@ -45,6 +45,9 @@ const keel_space_t keel_space = {
      * (30px) plus space-1 above, so the clock clears the panel edge. */
     .status_bar_h = KS(24),
     .control_edge = KS(1),
+    /* New for Keel: the design system draws dividers as 1px rules; scaled
+     * like everything else. */
+    .divider = KS(1),
 };
 
 /* ---- Motion ----------------------------------------------------------- */

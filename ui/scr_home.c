@@ -30,7 +30,7 @@ void keel_scr_home(lv_obj_t * body, void * arg)
 {
     /* The list area ends above the mini player, which sits at the bottom. */
     lv_obj_t * list = keel_box(body);
-    lv_obj_set_size(list, LV_PCT(100), keel_nav_body_height() - keel_space.touch_min);
+    lv_obj_set_size(list, LV_PCT(100), keel_nav_body_height() - keel_mini_player_height());
     lv_obj_set_flex_flow(list, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_style_pad_top(list, keel_space.space_4, 0);
 

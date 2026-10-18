@@ -48,9 +48,13 @@ void keel_energy_bar_set(lv_obj_t * bar, int32_t permille);
  * `ok` picks status-ok or status-error. */
 lv_obj_t * keel_status(lv_obj_t * parent, bool ok, const char * text);
 
-/* Mini player bar on `raised`, one touch target tall, aligned to the
- * bottom of `parent`. Hidden while nothing plays. Tap opens now playing. */
+/* Mini player bar on `raised`, aligned to the bottom of `parent`: a `line`
+ * divider on top, one touch target of art, title and play/pause, then the
+ * energy bar (playback progress) full width at the bottom. Hidden while
+ * nothing plays. Tap opens now playing. */
 lv_obj_t * keel_mini_player(lv_obj_t * parent);
+/* Its total height, for laying out what sits above it. */
+int32_t keel_mini_player_height(void);
 
 /* ---- Pivot ------------------------------------------------------------
  * A horizontal strip of panes under a strip of `hero` headers. The
