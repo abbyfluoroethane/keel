@@ -1,0 +1,640 @@
+{
+  "version": 1,
+  "note": "Tracklists from MusicBrainz (CC0). Cover art is not in git: run tools/fetch_demo_library.py covers.",
+  "artists": [
+    {
+      "id": "ninajirachi",
+      "name": "ninajirachi",
+      "source": "Ninajirachi",
+      "mbid": "6897b46a-9236-4480-9ed7-300f6b85d62f"
+    },
+    {
+      "id": "sewerslvt",
+      "name": "sewerslvt",
+      "source": "Sewerslvt",
+      "mbid": "33b1695b-0b35-4e22-b1d4-be4971fb71ba"
+    },
+    {
+      "id": "cynthoni",
+      "name": "cynthoni",
+      "source": "Cynthoni",
+      "mbid": "ef8dae4f-8b71-454f-ad40-9f5370b3b084"
+    },
+    {
+      "id": "100-gecs",
+      "name": "100 gecs",
+      "source": "100 gecs",
+      "mbid": "d6d45dda-2377-4faa-947b-e071efa085c0"
+    }
+  ],
+  "albums": [
+    {
+      "id": "i-love-my-computer",
+      "title": "i love my computer",
+      "source": "I Love My Computer",
+      "artist": "ninajirachi",
+      "year": 2025,
+      "mbid_release_group": "6ab2d1f5-1730-499d-a814-6fe6eb9ec1f0",
+      "tracks": [
+        {
+          "title": "london song",
+          "source": "London Song",
+          "duration": 195
+        },
+        {
+          "title": "ipod touch",
+          "source": "iPod Touch",
+          "duration": 197
+        },
+        {
+          "title": "fuck my computer",
+          "source": "Fuck My Computer",
+          "duration": 191
+        },
+        {
+          "title": "csirac",
+          "source": "CSIRAC",
+          "duration": 202
+        },
+        {
+          "title": "delete",
+          "source": "Delete",
+          "duration": 231
+        },
+        {
+          "title": "ฅ^•ﻌ•^ฅ",
+          "source": "ฅ^•ﻌ•^ฅ",
+          "duration": 67
+        },
+        {
+          "title": "all i am",
+          "source": "All I Am",
+          "duration": 183
+        },
+        {
+          "title": "infohazard",
+          "source": "Infohazard",
+          "duration": 269
+        },
+        {
+          "title": "battery death",
+          "source": "Battery Death",
+          "duration": 198
+        },
+        {
+          "title": "sing good",
+          "source": "Sing Good",
+          "duration": 160
+        },
+        {
+          "title": "it’s you",
+          "source": "It’s You",
+          "duration": 170
+        },
+        {
+          "title": "all at once",
+          "source": "All At Once",
+          "duration": 328
+        }
+      ]
+    },
+    {
+      "id": "girl-edm",
+      "title": "girl EDM",
+      "source": "girl EDM",
+      "artist": "ninajirachi",
+      "year": 2024,
+      "mbid_release_group": "859667bc-767d-4924-9f6c-a54fb42a2c24",
+      "tracks": [
+        {
+          "title": "girl EDM",
+          "source": "girl EDM",
+          "duration": 225
+        },
+        {
+          "title": "ice u out",
+          "source": "Ice u out",
+          "duration": 203
+        },
+        {
+          "title": "hand on my heart",
+          "source": "Hand on my heart",
+          "duration": 200
+        },
+        {
+          "title": "ninacamina",
+          "source": "Ninacamina",
+          "duration": 187
+        }
+      ]
+    },
+    {
+      "id": "blumiere",
+      "title": "blumiere",
+      "source": "Blumiere",
+      "artist": "ninajirachi",
+      "year": 2020,
+      "mbid_release_group": "4c6d5a9d-70f9-4e45-9fd1-095d225579ea",
+      "tracks": [
+        {
+          "title": "blumiere",
+          "source": "Blumiere",
+          "duration": 269
+        },
+        {
+          "title": "alight",
+          "source": "Alight",
+          "duration": 195
+        },
+        {
+          "title": "rainbow train",
+          "source": "Rainbow Train",
+          "duration": 202
+        },
+        {
+          "title": "cut the rope",
+          "source": "Cut the Rope",
+          "duration": 244
+        },
+        {
+          "title": "tethered to the body",
+          "source": "Tethered to the Body",
+          "duration": 238
+        }
+      ]
+    },
+    {
+      "id": "draining-love-story",
+      "title": "draining love story",
+      "source": "Draining Love Story",
+      "artist": "sewerslvt",
+      "year": 2020,
+      "mbid_release_group": "a807b4de-9773-4f69-921f-d220eddcf11b",
+      "tracks": [
+        {
+          "title": "love is a mighty big word",
+          "source": "Love Is a Mighty Big Word",
+          "duration": 138
+        },
+        {
+          "title": "newlove",
+          "source": "Newlove",
+          "duration": 359
+        },
+        {
+          "title": "yandere complex",
+          "source": "Yandere Complex",
+          "duration": 250
+        },
+        {
+          "title": "ecifircas",
+          "source": "Ecifircas",
+          "duration": 347
+        },
+        {
+          "title": "lexapro delirium",
+          "source": "Lexapro Delirium",
+          "duration": 436
+        },
+        {
+          "title": "this fleeting feeling",
+          "source": "This Fleeting Feeling",
+          "duration": 212
+        },
+        {
+          "title": "swinging in his cell",
+          "source": "Swinging in His Cell",
+          "duration": 323
+        },
+        {
+          "title": "mr. kill myself",
+          "source": "Mr. Kill Myself",
+          "duration": 472
+        },
+        {
+          "title": "down the drain",
+          "source": "Down the Drain",
+          "duration": 488
+        },
+        {
+          "title": "slowdeath",
+          "source": "Slowdeath",
+          "duration": 493
+        }
+      ]
+    },
+    {
+      "id": "we-had-good-times-together",
+      "title": "we had good times together, don’t forget that",
+      "source": "we had good times together, don’t forget that",
+      "artist": "sewerslvt",
+      "year": 2021,
+      "mbid_release_group": "8c704c7e-51c5-4446-8291-62312629dc8d",
+      "tracks": [
+        {
+          "title": "dissociating",
+          "source": "dissociating",
+          "duration": 343
+        },
+        {
+          "title": "self destruction worldwide broadcast",
+          "source": "self destruction worldwide broadcast",
+          "duration": 287
+        },
+        {
+          "title": "all the joy in life was gone once you left",
+          "source": "all the joy in life was gone once you left",
+          "duration": 396
+        },
+        {
+          "title": "the last thing she sent me",
+          "source": "the last thing she sent me",
+          "duration": 226
+        },
+        {
+          "title": "light at the end of the tunnel",
+          "source": "light at the end of the tunnel",
+          "duration": 357
+        },
+        {
+          "title": "ultradespair",
+          "source": "ultradespair",
+          "duration": 339
+        },
+        {
+          "title": "borderline",
+          "source": "borderline",
+          "duration": 432
+        },
+        {
+          "title": "whatever",
+          "source": "whatever",
+          "duration": 277
+        },
+        {
+          "title": "blissful overdose",
+          "source": "blissful overdose",
+          "duration": 251
+        },
+        {
+          "title": "inertia status",
+          "source": "inertia status",
+          "duration": 264
+        },
+        {
+          "title": "die alone",
+          "source": "die alone",
+          "duration": 432
+        },
+        {
+          "title": "sick, twisted, demented",
+          "source": "sick, twisted, demented",
+          "duration": 282
+        },
+        {
+          "title": "her",
+          "source": "her",
+          "duration": 439
+        },
+        {
+          "title": "goodbye",
+          "source": "goodbye",
+          "duration": 1021
+        }
+      ]
+    },
+    {
+      "id": "skitzofrenia-simulation",
+      "title": "skitzofrenia simulation",
+      "source": "Skitzofrenia Simulation",
+      "artist": "sewerslvt",
+      "year": 2021,
+      "mbid_release_group": "505297b7-3fdc-4cde-9b61-96844152413a",
+      "tracks": [
+        {
+          "title": "my fvcked up head",
+          "source": "My Fvcked Up Head",
+          "duration": 231
+        },
+        {
+          "title": "i break my heart & yours",
+          "source": "I Break My Heart & Yours",
+          "duration": 274
+        },
+        {
+          "title": "looming.sorrow.descent",
+          "source": "Looming.Sorrow.Descent",
+          "duration": 318
+        },
+        {
+          "title": "i bleed",
+          "source": "I Bleed",
+          "duration": 154
+        },
+        {
+          "title": "restlessness",
+          "source": "Restlessness",
+          "duration": 208
+        },
+        {
+          "title": "existing everywhere",
+          "source": "Existing Everywhere",
+          "duration": 343
+        },
+        {
+          "title": "car accident",
+          "source": "Car Accident",
+          "duration": 408
+        },
+        {
+          "title": "purple hearts in her eyes",
+          "source": "Purple Hearts in Her Eyes",
+          "duration": 395
+        },
+        {
+          "title": "slvtcrvsher",
+          "source": "Slvtcrvsher",
+          "duration": 154
+        },
+        {
+          "title": "ecocide suite",
+          "source": "Ecocide Suite",
+          "duration": 359
+        },
+        {
+          "title": "antidepressant",
+          "source": "Antidepressant",
+          "duration": 288
+        },
+        {
+          "title": "never existed",
+          "source": "Never Existed",
+          "duration": 389
+        },
+        {
+          "title": "blooming iridescent flower",
+          "source": "Blooming Iridescent Flower",
+          "duration": 358
+        },
+        {
+          "title": "with you forever",
+          "source": "With You Forever",
+          "duration": 248
+        }
+      ]
+    },
+    {
+      "id": "sewerslvt-presents-cynthoni-1",
+      "title": "sewerslvt presents: cynthoni, pt. 1",
+      "source": "Sewerslvt Presents: Cynthoni, Pt. 1",
+      "artist": "cynthoni",
+      "year": 2024,
+      "mbid_release_group": "dca45187-3d85-4998-a4fe-55a78dd636c9",
+      "tracks": [
+        {
+          "title": "theme of cynthoni",
+          "source": "Theme of Cynthoni",
+          "duration": 180
+        },
+        {
+          "title": "death of the endless",
+          "source": "Death of the Endless",
+          "duration": 311
+        },
+        {
+          "title": "lychee ice",
+          "source": "Lychee Ice",
+          "duration": 141
+        },
+        {
+          "title": "flickering in the gloom",
+          "source": "Flickering in the Gloom",
+          "duration": 228
+        },
+        {
+          "title": "grinding of the teeth",
+          "source": "Grinding of the Teeth",
+          "duration": 162
+        },
+        {
+          "title": "monolithic cyan tsunami",
+          "source": "Monolithic Cyan Tsunami",
+          "duration": 223
+        }
+      ]
+    },
+    {
+      "id": "draining-love-story-cynthoni",
+      "title": "draining love story (in the eyes of cynthoni)",
+      "source": "Draining Love Story (In the Eyes of Cynthoni)",
+      "artist": "cynthoni",
+      "year": 2025,
+      "mbid_release_group": "2312e9f3-bd81-4900-9b5b-0168a47d21ad",
+      "tracks": [
+        {
+          "title": "it is happening again…",
+          "source": "It Is Happening Again…",
+          "duration": 159
+        },
+        {
+          "title": "lvstlove",
+          "source": "Lvstlove",
+          "duration": 366
+        },
+        {
+          "title": "yandere era",
+          "source": "Yandere Era",
+          "duration": 227
+        },
+        {
+          "title": "swan dive into eternity",
+          "source": "Swan Dive Into Eternity",
+          "duration": 362
+        },
+        {
+          "title": "lexapro doesn’t work",
+          "source": "Lexapro Doesn’t Work",
+          "duration": 443
+        },
+        {
+          "title": "the feeling is gone",
+          "source": "The Feeling Is Gone",
+          "duration": 274
+        },
+        {
+          "title": "femcels",
+          "source": "Femcels",
+          "duration": 296
+        },
+        {
+          "title": "cynthoni of flames",
+          "source": "Cynthoni of Flames",
+          "duration": 557
+        },
+        {
+          "title": "even further down the drain",
+          "source": "Even Further Down the Drain",
+          "duration": 482
+        },
+        {
+          "title": "slowburn",
+          "source": "Slowburn",
+          "duration": 427
+        }
+      ]
+    },
+    {
+      "id": "1000-gecs",
+      "title": "1000 gecs",
+      "source": "1000 gecs",
+      "artist": "100-gecs",
+      "year": 2019,
+      "mbid_release_group": "9bbc8220-9f72-4595-a0f7-55dfdbab569a",
+      "tracks": [
+        {
+          "title": "745 sticky",
+          "source": "745 sticky",
+          "duration": 141
+        },
+        {
+          "title": "money machine",
+          "source": "money machine",
+          "duration": 114
+        },
+        {
+          "title": "800db cloud",
+          "source": "800db cloud",
+          "duration": 140
+        },
+        {
+          "title": "i need help immediately",
+          "source": "I Need Help Immediately",
+          "duration": 81
+        },
+        {
+          "title": "stupid horse",
+          "source": "stupid horse",
+          "duration": 121
+        },
+        {
+          "title": "xxxi_wud_nvrstøp_üxxx",
+          "source": "xXXi_wud_nvrstøp_ÜXXx",
+          "duration": 174
+        },
+        {
+          "title": "ringtone",
+          "source": "ringtone",
+          "duration": 143
+        },
+        {
+          "title": "gecgecgec",
+          "source": "gecgecgec",
+          "duration": 143
+        },
+        {
+          "title": "hand crushed by a mallet",
+          "source": "hand crushed by a mallet",
+          "duration": 126
+        },
+        {
+          "title": "gec 2 ü",
+          "source": "gec 2 Ü",
+          "duration": 197
+        }
+      ]
+    },
+    {
+      "id": "10000-gecs",
+      "title": "10,000 gecs",
+      "source": "10,000 gecs",
+      "artist": "100-gecs",
+      "year": 2023,
+      "mbid_release_group": "d73daa13-b571-41dd-8dfd-740fde3fda7d",
+      "tracks": [
+        {
+          "title": "dumbest girl alive",
+          "source": "Dumbest Girl Alive",
+          "duration": 138
+        },
+        {
+          "title": "757",
+          "source": "757",
+          "duration": 127
+        },
+        {
+          "title": "hollywood baby",
+          "source": "Hollywood Baby",
+          "duration": 187
+        },
+        {
+          "title": "frog on the floor",
+          "source": "Frog on the Floor",
+          "duration": 161
+        },
+        {
+          "title": "doritos & fritos",
+          "source": "Doritos & Fritos",
+          "duration": 197
+        },
+        {
+          "title": "billy knows jamie",
+          "source": "Billy Knows Jamie",
+          "duration": 168
+        },
+        {
+          "title": "one million dollars",
+          "source": "One Million Dollars",
+          "duration": 121
+        },
+        {
+          "title": "the most wanted person in the united states",
+          "source": "The Most Wanted Person in the United States",
+          "duration": 156
+        },
+        {
+          "title": "i got my tooth removed",
+          "source": "I Got My Tooth Removed",
+          "duration": 197
+        },
+        {
+          "title": "mememe",
+          "source": "mememe",
+          "duration": 166
+        }
+      ]
+    }
+  ],
+  "playlists": [
+    {
+      "title": "late night",
+      "tracks": [
+        "draining-love-story:1",
+        "i-love-my-computer:3",
+        "10000-gecs:2",
+        "we-had-good-times-together:2",
+        "girl-edm:1",
+        "draining-love-story-cynthoni:2"
+      ]
+    },
+    {
+      "title": "loud",
+      "tracks": [
+        "1000-gecs:2",
+        "10000-gecs:1",
+        "i-love-my-computer:1",
+        "skitzofrenia-simulation:1",
+        "1000-gecs:4"
+      ]
+    },
+    {
+      "title": "recently added",
+      "tracks": [
+        "draining-love-story-cynthoni:1",
+        "draining-love-story-cynthoni:3",
+        "i-love-my-computer:2",
+        "sewerslvt-presents-cynthoni-1:1",
+        "girl-edm:2"
+      ]
+    }
+  ]
+}
